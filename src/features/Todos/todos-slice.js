@@ -30,6 +30,7 @@ export const getAllTodos = createAsyncThunk(
       return rejectWithValue('Failed To fetch all todos.');
     }
   },
+  // отмена запроса, если он уже идет через третий параметр condition createAsyncThunk
   {
     condition: (_, { getState, extra }) => {
       const { loading } = getState().todos;
