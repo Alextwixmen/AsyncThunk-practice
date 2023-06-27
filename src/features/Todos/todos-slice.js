@@ -4,29 +4,17 @@ import { resetToDefault } from '../Reset/reset-action';
 
 export const createTodo = createAsyncThunk(
   '@@todos/create-todo',
-  async (title, { dispatch }) => {
-    const res = await fetch('http://localhost:3001/todos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title, completed: false }),
-    });
-    const data = await res.json();
-    console.log(data);
-    return data;
+  async (title, { dispatch, extra: api }) => {
+    return api.createTodo(title);
   }
 );
 
 export const getAllTodos = createAsyncThunk(
   '@@todox/get-todos',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, extra: api }) => {
     try {
-      const res = await fetch('http://localhost:3001/todos');
-      const data = await res.json();
-      return data;
+      return api.getAllTodos();
     } catch (err) {
-      console.log(err);
       return rejectWithValue('Failed To fetch all todos.');
     }
   },
@@ -43,29 +31,17 @@ export const getAllTodos = createAsyncThunk(
 
 export const toggleTodo = createAsyncThunk(
   '@@todos/toggleTodo',
-  async (id, { getState }) => {
+  async (id, { getState, extra: api }) => {
     const todo = getState().todos.entities.find((item) => item.id === id);
-    const res = await fetch(`http://localhost:3001/todos/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ completed: !todo.completed }),
-    });
-    const data = await res.json();
-    return data;
+
+    return api.toggleTodo(id, { completed: !todo.completed });
   }
 );
 
 export const deleteTodo = createAsyncThunk(
   '@@todos/delete-todo',
-  async (id, { dispatch, getState }) => {
-    const res = await fetch(`http://localhost:3001/todos/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+  async (id, { getState, extra: api }) => {
+    api.deleteTodo(id);
     return id;
   }
 );
