@@ -5,7 +5,6 @@ import { resetToDefault } from '../Reset/reset-action';
 export const createTodo = createAsyncThunk(
   '@@todos/create-todo',
   async (title, { dispatch }) => {
-    // dispatch({ type: 'SET_LOADING' }); // якобы
     const res = await fetch('http://localhost:3001/todos', {
       method: 'POST',
       headers: {
@@ -19,11 +18,27 @@ export const createTodo = createAsyncThunk(
   }
 );
 
-export const getAllTodos = createAsyncThunk('@@todox/get-todos', async () => {
-  const res = await fetch('http://localhost:3001/todos');
-  const data = await res.json();
-  return data;
-});
+export const getAllTodos = createAsyncThunk(
+  '@@todox/get-todos',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await fetch('http://localhost:3001/todos');
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.log(err);
+      return rejectWithValue('Failed To fetch all todos.');
+    }
+  },
+  {
+    condition: (_, { getState, extra }) => {
+      const { loading } = getState().todos;
+      if (loading === 'loading') {
+        return false;
+      }
+    },
+  }
+);
 
 export const toggleTodo = createAsyncThunk(
   '@@todos/toggleTodo',
@@ -67,6 +82,7 @@ const todoSlice = createSlice({
       .addCase(resetToDefault, () => {
         return [];
       })
+      // ловим все через addMatcher()
       // .addCase(getAllTodos.pending, (state, action) => {
       //   state.loading = 'loading';
       //   state.error = null;
@@ -102,8 +118,9 @@ const todoSlice = createSlice({
       .addMatcher(
         (action) => action.type.endsWith('/rejected'),
         (state, action) => {
+          console.log(action);
           state.loading = 'idle';
-          state.error = 'ERRORRRR!';
+          state.error = action.payload || action.error.message;
         }
       )
       .addMatcher(

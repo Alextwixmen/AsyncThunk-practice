@@ -15,21 +15,24 @@ export const TodoList = () => {
   // console.log('loading =>', loading);
 
   useEffect(() => {
-    dispatch(getAllTodos())
+    const promise = dispatch(getAllTodos())
       .unwrap()
       .then(({ payload }) => {
         toast('All Todos were fetch');
       })
-      .catch(() => {
-        toast('ERROR');
+      .catch((err) => {
+        toast(err);
       });
+    return () => {
+      promise.abort(); // остановка запроса при размонтировании компонента
+    };
   }, []);
 
   return (
     <>
       <ToastContainer />
       <ul>
-        {error && <h2>ERROR</h2>}
+        {error && <h2>{error}</h2>}
         {loading === 'loading' && <h2>Loading....</h2>}
         {loading === 'idle' &&
           !error &&
