@@ -6,7 +6,7 @@ export const createTodo = createAsyncThunk(
   '@@todos/create-todo',
   async (title, { dispatch }) => {
     // dispatch({ type: 'SET_LOADING' }); // якобы
-    const res = await fetch('http://localhost:3002/todos', {
+    const res = await fetch('http://localhost:3001/todos', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,16 +67,15 @@ const todoSlice = createSlice({
       .addCase(resetToDefault, () => {
         return [];
       })
-      .addCase(getAllTodos.pending, (state, action) => {
-        state.loading = 'loading';
-        state.error = null;
-      })
-      .addCase(getAllTodos.rejected, (state, action) => {
-        (state.loading = 'idle'), (state.error = 'Something went wrong!');
-      })
+      // .addCase(getAllTodos.pending, (state, action) => {
+      //   state.loading = 'loading';
+      //   state.error = null;
+      // })
+      // .addCase(getAllTodos.rejected, (state, action) => {
+      //   (state.loading = 'idle'), (state.error = 'Something went wrong!');
+      // })
       .addCase(getAllTodos.fulfilled, (state, action) => {
         state.entities = action.payload;
-        state.loading = 'idle';
       })
       .addCase(createTodo.fulfilled, (state, action) => {
         state.entities.push(action.payload);
@@ -92,7 +91,27 @@ const todoSlice = createSlice({
           (todo) => todo.id === updatedTodo.id
         );
         state.entities[index] = updatedTodo;
-      });
+      })
+      .addMatcher(
+        (action) => action.type.endsWith('/pending'),
+        (state, action) => {
+          state.loading = 'loading';
+          state.error = null;
+        }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith('/rejected'),
+        (state, action) => {
+          state.loading = 'idle';
+          state.error = 'ERRORRRR!';
+        }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith('/fulfilled'),
+        (state, action) => {
+          state.loading = 'idle';
+        }
+      );
   },
 });
 

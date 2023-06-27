@@ -41,7 +41,11 @@ export const TodoList = () => {
                 onChange={() => dispatch(toggleTodo(todo.id))}
               />{' '}
               {todo.title}{' '}
-              <button onClick={() => dispatch(deleteTodo(todo.id))}>
+              <button
+                onClick={() =>
+                  dispatch(deleteTodo(todo.id)).then((data) => toast('Deleted'))
+                }
+              >
                 delete
               </button>
             </li>
