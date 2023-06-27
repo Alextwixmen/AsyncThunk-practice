@@ -6,7 +6,7 @@ export const createTodo = createAsyncThunk(
   '@@todos/create-todo',
   async (title, { dispatch }) => {
     // dispatch({ type: 'SET_LOADING' }); // якобы
-    const res = await fetch('http://localhost:3001/todos', {
+    const res = await fetch('http://localhost:3002/todos', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,12 +20,7 @@ export const createTodo = createAsyncThunk(
 );
 
 export const getAllTodos = createAsyncThunk('@@todox/get-todos', async () => {
-  const res = await fetch('http://localhost:3001/todos', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  const res = await fetch('http://localhost:3001/todos');
   const data = await res.json();
   return data;
 });
@@ -55,7 +50,6 @@ export const deleteTodo = createAsyncThunk(
         'Content-Type': 'application/json',
       },
     });
-    const data = await res.json();
     return id;
   }
 );
